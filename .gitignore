@@ -102,3 +102,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+network_tracker_config.py
