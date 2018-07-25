@@ -34,10 +34,12 @@ arp_line_re = re.compile(
     re.I,
 )
 
-def arp_scan(interface='en0'):
+def arp_scan(interface='en0', sudo=False):
     return subprocess.check_output(
-        'arp-scan --localnet --interface {interface}'.format(
+        '{sudo}arp-scan --localnet --interface {interface} {redirect}'.format(
             interface=interface,
+            sudo='sudo ' if sudo else '',
+            redirect='' if sudo else '2>&1 | grep -vE "You need to be root|Operation not permitted"',
         ),
         shell=True,
     ).decode().strip()
@@ -55,7 +57,10 @@ def run_update():
         for e in sess.query(Entry).filter(Entry.timeto==most_recent_record_time).all()
     }
 
-    scan = arp_scan(interface)
+    try:
+        scan = arp_scan(interface)
+    except subprocess.CalledProcessError:
+        scan = arp_scan(interface, sudo=True)
 
     lines = scan.split('\n')
 
