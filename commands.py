@@ -114,7 +114,7 @@ def create_tables():
     engine.execute(DDL('CREATE SCHEMA IF NOT EXISTS network'))
     SABase.metadata.create_all()
     engine.execute(DDL('''
-    DROP VIEW network_history;
+    DROP VIEW IF EXISTS network_history;
     CREATE OR REPLACE VIEW network_history AS
         select
             e.eid
