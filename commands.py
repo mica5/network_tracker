@@ -48,7 +48,7 @@ def run_update():
     sess = sessionmaker(bind=engine)()
 
     Helper.set_sess(sess)
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().replace(microsecond=0)
 
     most_recent_record_time = sess.query(func.max(Entry.timeto)).one_or_none()
 

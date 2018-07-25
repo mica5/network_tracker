@@ -155,13 +155,13 @@ class Entry(SABase, Helper):
         'timefrom',
         DateTime,
         nullable=False,
-        default='now()',
+        default="date_trunc('second', now())::timestamp",
     )
     timeto = Column(
         'timeto',
         DateTime,
         nullable=False,
-        default='now()',
+        default="date_trunc('second', now())::timestamp",
     )
 
     sid = Column('sid', Integer, ForeignKey('status.sid'))
