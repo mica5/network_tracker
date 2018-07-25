@@ -15,7 +15,7 @@ import argparse
 from sqlalchemy import DDL, func
 from sqlalchemy.orm import sessionmaker
 
-from network_tracker_config import engine, interface
+from network_tracker_config import engine, interface, network_schema_name
 from models import Helper, Entry, SABase
 
 
@@ -116,11 +116,13 @@ def run_update():
 
 
 def create_tables():
-    engine.execute(DDL('CREATE SCHEMA IF NOT EXISTS network'))
+    engine.execute(DDL('CREATE SCHEMA IF NOT EXISTS {schema}'.format(
+        schema=network_schema_name,
+    )))
     SABase.metadata.create_all()
     engine.execute(DDL('''
-    DROP VIEW IF EXISTS network_history;
-    CREATE OR REPLACE VIEW network_history AS
+    DROP VIEW IF EXISTS {schema}.network_history;
+    CREATE OR REPLACE VIEW {schema}.network_history AS
         select
             e.eid
             , e.timefrom
@@ -137,7 +139,7 @@ def create_tables():
         order by regexp_replace(ip, '.*\.', '')::int
     ;
     -- thanks to https://stackoverflow.com/a/18939742/2821804
-    CREATE OR REPLACE FUNCTION uppercase_mac_on_insert() RETURNS trigger AS $uppercase_mac_on_insert$
+    CREATE OR REPLACE FUNCTION {schema}.uppercase_mac_on_insert() RETURNS trigger AS $uppercase_mac_on_insert$
         BEGIN
             NEW.mac = upper(NEW.mac);
             RETURN NEW;
@@ -145,12 +147,14 @@ def create_tables():
     $uppercase_mac_on_insert$ LANGUAGE plpgsql
     ;
     -- https://stackoverflow.com/a/40479291/2821804
-    DROP TRIGGER IF EXISTS uppercase_mac_on_insert_trigger on network.devices
+    DROP TRIGGER IF EXISTS {schema}.uppercase_mac_on_insert_trigger on {schema}.devices
     ;
-    CREATE TRIGGER uppercase_mac_on_insert_trigger BEFORE INSERT OR UPDATE ON devices
-        FOR EACH ROW EXECUTE PROCEDURE uppercase_mac_on_insert()
+    CREATE TRIGGER {schema}.uppercase_mac_on_insert_trigger BEFORE INSERT OR UPDATE ON {schema}.devices
+        FOR EACH ROW EXECUTE PROCEDURE {schema}.uppercase_mac_on_insert()
     ;
-    '''))
+    '''.format(
+        schema=network_schema_name,
+    )))
 
 def drop_tables():
     SABase.metadata.drop_all()

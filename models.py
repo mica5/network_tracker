@@ -10,13 +10,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from sqlalchemy.orm import sessionmaker, relationship
 
-from network_tracker_config import engine
+from network_tracker_config import engine, network_schema_name
 
 
 SABase = declarative_base(
     metadata=MetaData(
         bind=engine,
-        schema='network',
+        schema=network_schema_name,
     ),
 )
 

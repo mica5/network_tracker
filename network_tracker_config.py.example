@@ -2,5 +2,6 @@ from sqlalchemy import create_engine
 
 connection_string = 'postgresql://username:password@host:port/dbname'
 interface = 'wlan0'
+network_schema_name = 'network'
 
 engine = create_engine(connection_string)
