@@ -76,7 +76,7 @@ def run_update():
         if not m:
             continue
         ip_address = m.group('ip_address')
-        mac_address = m.group('mac_address')
+        mac_address = m.group('mac_address').upper()
         name = m.group('name')
 
         if mac_address in seen_macs:
@@ -135,6 +135,20 @@ def create_tables():
         inner join devices d using(did)
         where e.timeto=(select max(timeto) from entry)
         order by regexp_replace(ip, '.*\.', '')::int
+    ;
+    -- thanks to https://stackoverflow.com/a/18939742/2821804
+    CREATE OR REPLACE FUNCTION uppercase_mac_on_insert() RETURNS trigger AS $uppercase_mac_on_insert$
+        BEGIN
+            NEW.mac = upper(NEW.mac);
+            RETURN NEW;
+        END;
+    $uppercase_mac_on_insert$ LANGUAGE plpgsql
+    ;
+    -- https://stackoverflow.com/a/40479291/2821804
+    DROP TRIGGER IF EXISTS uppercase_mac_on_insert_trigger on network.devices
+    ;
+    CREATE TRIGGER uppercase_mac_on_insert_trigger BEFORE INSERT OR UPDATE ON devices
+        FOR EACH ROW EXECUTE PROCEDURE uppercase_mac_on_insert()
     ;
     '''))
 
