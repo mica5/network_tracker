@@ -36,7 +36,7 @@ arp_line_re = re.compile(
 
 def arp_scan(interface='en0', sudo=False):
     return subprocess.check_output(
-        '{sudo}arp-scan --localnet --interface {interface} {redirect}'.format(
+        '{sudo}arp-scan --localnet --interface {interface} {redirect} --ignoredups --retry=7'.format(
             interface=interface,
             sudo='sudo ' if sudo else '',
             redirect='' if sudo else '2>&1 | grep -vE "You need to be root|Operation not permitted"',
