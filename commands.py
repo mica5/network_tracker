@@ -15,7 +15,7 @@ import argparse
 from sqlalchemy import DDL, func
 from sqlalchemy.orm import sessionmaker
 
-from network_tracker_config import engine
+from network_tracker_config import engine, interface
 from models import Helper, Entry, SABase
 
 
@@ -55,7 +55,7 @@ def run_update():
         for e in sess.query(Entry).filter(Entry.timeto==most_recent_record_time).all()
     }
 
-    scan = arp_scan()
+    scan = arp_scan(interface)
 
     lines = scan.split('\n')
 
